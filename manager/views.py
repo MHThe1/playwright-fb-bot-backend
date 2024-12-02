@@ -1,8 +1,11 @@
+from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Action
 from .serializers import ActionSerializer
 from rest_framework.decorators import action
+from rest_framework.decorators import api_view
+from .forms import CreateTaskForm
 
 class ActionViewSet(viewsets.ModelViewSet):
     queryset = Action.objects.all()
@@ -204,3 +207,30 @@ class ActionViewSet(viewsets.ModelViewSet):
                 "action_title": None,
                 "action_data": {}
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET', 'POST'])
+def create_task_form(request):
+    if request.method == 'POST':
+        form = CreateTaskForm(request.POST)
+        if form.is_valid():
+            # Construct the JSON structure
+            action_data = form.get_action_data()
+
+            # Save the task
+            action = Action(
+                action_description=form.cleaned_data['action_description'],
+                required_bot_count=form.cleaned_data['required_bot_count'],
+                action_data=action_data
+            )
+            action.save()
+
+            return Response({
+                "message": "Task created successfully.",
+                "task_data": action_data
+            }, status=201)
+        else:
+            return render(request, 'create_task_form.html', {'form': form})
+    else:
+        form = CreateTaskForm()
+        return render(request, 'create_task_form.html', {'form': form})

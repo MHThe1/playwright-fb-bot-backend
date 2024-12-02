@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Task</title>
+</head>
+<body>
+    <h1>Create a New Task</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>{{ form.action_description.label_tag }} {{ form.action_description }}</p>
+        <p>{{ form.required_bot_count.label_tag }} {{ form.required_bot_count }}</p>
+        <p>{{ form.profile_switch_option.label_tag }} {{ form.profile_switch_option }}</p>
+        <p>{{ form.actions.label_tag }} {{ form.actions }}</p>
+        <p>{{ form.url.label_tag }} {{ form.url }}</p>
+        <p>{{ form.reaction.label_tag }} {{ form.reaction }}</p>
+        <p>{{ form.comment_text.label_tag }} {{ form.comment_text }}</p>
+        <p>{{ form.comment_tags.label_tag }} {{ form.comment_tags }}</p>
+        <p>{{ form.caption.label_tag }} {{ form.caption }}</p>
+        <p>{{ form.caption_tags.label_tag }} {{ form.caption_tags }}</p>
+        <button type="submit">Create Task</button>
+    </form>
+</body>
+</html>
