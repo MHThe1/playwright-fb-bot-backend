@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from manager.views import create_task_form
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('manager.urls')),
+    path('create_task_form', create_task_form, name='create_task_form'),
 ]
