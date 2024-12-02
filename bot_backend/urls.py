@@ -22,5 +22,5 @@ from manager.views import create_task_form
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('manager.urls')),
-    path('create_task_form', create_task_form, name='create_task_form'),
+    path('create_task_form/', create_task_form, name='create_task_form'),
 ]
