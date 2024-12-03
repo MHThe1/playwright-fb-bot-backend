@@ -10,7 +10,11 @@ class ActionAdminForm(forms.ModelForm):
         required=False,
         label="Actions"
     )
-    url = forms.URLField(required=False, label="Task URL")
+    urls = forms.CharField(
+        widget=forms.Textarea(attrs={"placeholder": "Enter one URL per line"}), 
+        required=False, 
+        label="Task URLs"
+    )
     reaction = forms.ChoiceField(
         choices=[("like", "Like"), ("love", "Love"), ("haha", "Haha"), ("sad", "Sad"), ("angry", "Angry")],
         required=False,
@@ -23,7 +27,7 @@ class ActionAdminForm(forms.ModelForm):
 
     class Meta:
         model = Action
-        fields = ["action_description", "required_bot_count", "actions", "url", "reaction", 
+        fields = ["action_description", "required_bot_count", "actions", "urls", "reaction", 
                   "comment_text", "comment_tags", "caption", "caption_tags"]
 
     def __init__(self, *args, **kwargs):
@@ -32,7 +36,7 @@ class ActionAdminForm(forms.ModelForm):
         if self.instance and self.instance.action_data:
             data = self.instance.action_data.get("data", {})
             self.fields["actions"].initial = self.instance.action_data.get("actions")
-            self.fields["url"].initial = data.get("url")
+            self.fields["urls"].initial = "\n".join(data.get("urls", []))
             self.fields["reaction"].initial = data.get("reaction")
             self.fields["comment_text"].initial = data.get("comment_text")
             self.fields["comment_tags"].initial = ", ".join(data.get("comment_tags", []))
@@ -41,11 +45,14 @@ class ActionAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        urls_input = cleaned_data.get("urls", "")
+        urls_list = [url.strip() for url in urls_input.splitlines() if url.strip()]
+
         # Pack data into JSON format
         cleaned_data["action_data"] = {
             "actions": cleaned_data.pop("actions"),
             "data": {
-                "url": cleaned_data.pop("url"),
+                "urls": urls_list,
                 "reaction": cleaned_data.pop("reaction"),
                 "comment_text": cleaned_data.pop("comment_text"),
                 "comment_tags": [
@@ -54,10 +61,11 @@ class ActionAdminForm(forms.ModelForm):
                 "caption": cleaned_data.pop("caption"),
                 "caption_tags": [
                     tag.strip() for tag in cleaned_data.pop("caption_tags", "").split(",") if tag.strip()
-                ]
+                ],
             }
         }
         return cleaned_data
+
 
     def save(self, commit=True):
         # Update action_data before saving the instance
